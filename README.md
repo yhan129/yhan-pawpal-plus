@@ -47,24 +47,11 @@ streamlit run app.py
 
 ## Features
 
-- **Owner & Pet management** — Create an owner and register multiple pets of any species.
-- **Task scheduling** — Assign tasks (description, time, frequency) to individual pets.
-- **Sorting by time** — `Scheduler.sort_by_time()` orders all tasks chronologically using HH:MM string comparison.
-- **Filtering** — Filter the task list by pet name, completion status, or both simultaneously.
-- **Conflict warnings** — `Scheduler.detect_conflicts()` flags any two tasks scheduled at the same time and surfaces the warning in the UI via `st.warning`.
-- **Recurring tasks** — Marking a `daily` or `weekly` task complete automatically generates the next occurrence with the correct due date (`timedelta`). One-time tasks (`once`) do not recur.
-- **Mark complete** — Tasks can be marked done from the Streamlit UI; recurring tasks show the next scheduled date.
+The app lets you create an owner, add multiple pets, and schedule tasks for each one. Tasks have a time, frequency (once, daily, or weekly), and completion status. The schedule is sorted by time automatically and conflict warnings show up if two tasks are at the same time. Recurring tasks roll forward to the next day or week when marked done instead of disappearing.
 
 ## Smarter Scheduling
 
-The `Scheduler` class adds algorithmic intelligence beyond a simple list:
-
-| Feature | Method | How it works |
-|---|---|---|
-| Time sorting | `sort_by_time()` | `sorted()` with a `lambda t: t.time` key — works because HH:MM strings sort lexicographically |
-| Filtering | `filter_tasks(pet_name, completed)` | List comprehension with optional predicates |
-| Conflict detection | `detect_conflicts()` | Single-pass dict scan: O(n), returns warnings instead of raising exceptions |
-| Recurrence | `mark_task_complete()` + `Task.mark_complete()` | Returns next `Task` with `due_date + timedelta`; Scheduler adds it to the pet's list |
+The Scheduler class handles the main logic. Sorting uses Python's `sorted()` with a lambda on the HH:MM time string since zero-padded time strings sort correctly as plain strings. Filtering takes optional pet name and completion status arguments. Conflict detection does a single pass through all tasks and returns warning messages instead of crashing. Recurring tasks update in place when completed so there are no duplicates in the list.
 
 ## System Architecture (UML)
 
@@ -111,26 +98,10 @@ classDiagram
 
 ## Testing PawPal+
 
-Run the full test suite with:
-
 ```bash
 python -m pytest
 ```
 
-The suite covers:
+The tests cover marking tasks complete, adding tasks to a pet, daily and weekly recurrence updating the due date, one-time tasks becoming done and staying in the list, sort order, filtering by pet name and status, and conflict detection both triggering and not triggering when it should not.
 
-- **Task completion** — `mark_complete()` sets the `completed` flag to `True`.
-- **Task addition** — Adding a task to a `Pet` increases its task count.
-- **Pet name stamping** — `Pet.add_task()` sets `task.pet_name` automatically.
-- **Daily recurrence** — Completing a daily task produces a new task dated +1 day.
-- **Weekly recurrence** — Completing a weekly task produces a new task dated +7 days.
-- **One-time tasks** — Completing a `once` task returns `None` (no recurrence).
-- **Scheduler recurrence wiring** — `mark_task_complete` adds the next task to the pet's list.
-- **Sorting correctness** — `sort_by_time()` returns tasks in chronological order.
-- **Empty schedule** — Sorting an owner with no tasks returns `[]`.
-- **Filtering by pet** — Only the target pet's tasks are returned.
-- **Filtering pending/done** — Status filter correctly partitions the task list.
-- **Conflict detection** — Two tasks at the same time trigger exactly one warning.
-- **No false conflicts** — Different times on the same pet produce zero warnings.
-
-**Confidence level: 5/5** — All 15 tests pass and cover happy paths, recurrence edge cases, and conflict detection boundaries.
+All 15 tests pass. Confidence level 5/5.
