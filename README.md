@@ -96,11 +96,10 @@ classDiagram
     Scheduler "1" --> "1" Owner : manages
 ```
 
-## Testing PawPal+
+## Testing PawPal+ and 📸 Demo
 
-```bash
-python -m pytest
-```
+<img width="636" height="1192" alt="Screenshot demo" src="https://github.com/user-attachments/assets/30a39dc4-fc29-4a1f-90c2-11c90bc65a5a" />
+
 
 The tests cover marking tasks complete, adding tasks to a pet, daily and weekly recurrence updating the due date, one-time tasks becoming done and staying in the list, sort order, filtering by pet name and status, and conflict detection both triggering and not triggering when it should not.
 
